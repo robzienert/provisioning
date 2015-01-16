@@ -3,5 +3,5 @@
 A simple demonstration of Packer, (Salt / Ansible), CloudFormation
 and Vagrant. Maybe Docker.
 
-All of this to run a simple Python app.
-
+If run, this will provision an ELK (ElasticSearch, Logstash, Kibana)
+stack that by default integrates with Kafka.
