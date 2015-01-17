@@ -1,4 +1,4 @@
-from troposphere import Template, Ref, Parameter, Output, GetAtt, Join, Condition, Equals, Tags, Base64, If
+from troposphere import Template, Ref, Parameter, Output, GetAtt, Join, Condition, Equals, Tags, Base64, If, Select
 import troposphere.ec2 as ec2
 import troposphere.autoscaling as autoscaling
 import troposphere.elasticloadbalancing as elb
@@ -221,7 +221,7 @@ def template():
             )
         ],
         Tags=Tags(
-            Name=Join('.', [Ref(env_name, 'elasticsearch-internal-lb')]),
+            Name=Join('.', [Ref(env_name), 'elasticsearch-internal-lb']),
             env=Ref(env_name),
             stackdriver_monitor=False
         )
@@ -292,20 +292,56 @@ def template():
         )
     ))
 
-    t.add_resource(ec2.Instance(
+    kibana_instance = t.add_resource(ec2.Instance(
         'KibanaInstance',
-        # TODO Fuck it bed time.
+        InstanceType='t2.micro',
+        ImageId=Ref(kibana_ami),
+        KeyName=Ref(key_name),
+        SubnetId=Select(0, Ref(private_subnets)),
+        SecurityGroups=Ref(kibana_ami),
+        UserData=Base64(Join('', [
+            If(
+                'UseSalt',
+                '',
+                ''
+            )
+        ])),
+        Tags=Tags(
+            Name=Join('.', [Ref(env_name), 'kibana']),
+            env='ops'
+        )
     ))
 
     kibana_lb = t.add_resource(elb.LoadBalancer(
         'KibanaLb',
-        # TODO
+        Subnets=Ref(public_subnets),
+        CrossZone=True,
+        Instances=[Ref(kibana_instance)],
+        HealthCheck=elb.HealthCheck(
+            Target='HTTP:8080',
+            HealthyThreshold=3,
+            UnhealthyThreshold=5,
+            Interval=30,
+            Timeout=5
+        ),
+        Listeners=[
+            elb.Listener(
+                LoadBalancerPort=8080,
+                InstancePort=8080,
+                Protocol='HTTP'
+            )
+        ],
+        SecurityGroups=[Ref(kibana_lb_sg)],
+        Tags=Tags(
+            Name=Join('.', [Ref(env_name), 'kibana-lb']),
+            env='ops'
+        )
     ))
 
     t.add_output([
         Output(
             'KibanaUrl',
-            Value=Join('', [GetAtt(kibana_lb, 'PublicDNS')])
+            Value=Join('', ['http://', GetAtt(kibana_lb, 'DNSName')])
         )
     ])
 
