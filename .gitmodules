@@ -1,0 +1,6 @@
+[submodule "salt/common/formula/logstash-formula"]
+	path = salt/common/formula/logstash-formula
+	url = git@github.com:saltstack-formulas/logstash-formula.git
+[submodule "salt/formula/logstash-formula"]
+	path = salt/formula/logstash-formula
+	url = git@github.com:saltstack-formulas/logstash-formula.git

@@ -1,0 +1,11 @@
+server {
+  listen        {{ kibana_port }};
+  server_name   {{ server_name }};
+  error_log     /var/log/nginx/{{ server_name }}.log;
+  error_page    404    /404.html;
+
+  location / {
+    root {{ kibana_root }};
+    autoindex on;
+  }
+}
