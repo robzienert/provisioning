@@ -1,0 +1,6 @@
+grains:
+  environment: development
+  roles:
+    - elasticsearch
+    - logstash
+    - kibana

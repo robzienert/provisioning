@@ -1,6 +1,4 @@
 base:
-  '*':
-    - packages
   'G@roles:logstash':
     - match: grain
     - java

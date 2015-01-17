@@ -6,26 +6,35 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
 
-  config.vm.define "salt" do |salt|
-    salt.vm.synced_folder "salt/", "/srv/salt/"
+  config.vm.define "salt-master" do |master|
+    master.vm.synced_folder "salt/", "/srv/salt/"
 
-    # This is not good at all...
-    $minion_config = <<EOF
-sudo mkdir -p /etc/salt/minion.d
-echo "grains:" | sudo tee /etc/salt/minion.d/development.conf
-echo "  environment: development" | sudo tee -a /etc/salt/minion.d/development.conf
-echo "  roles:" | sudo tee -a /etc/salt/minion.d/development.conf
-echo "    - elasticsearch" | sudo tee -a /etc/salt/minion.d/development.conf
-echo "    - logstash" | sudo tee -a /etc/salt/minion.d/development.conf
-echo "    - kibana" | sudo tee -a /etc/salt/minion.d/development.conf
-EOF
+    master.vm.host_name = "master"
+    master.vm.network :private_network, ip: "192.168.75.1"
+    master.vm.network "public_network", :bridge => 'en0: Wi-Fi (AirPort)'
 
-    salt.vm.provision "shell", inline: $minion_config
+    master.vm.provision :salt do |salt|
+      salt.install_master = true
+      salt.no_minion = true
+      salt.install_type = "daily"
+      salt.always_install = true
+      salt.master_config = "salt/master"
+      # salt.seed_master = {
+      #     "minion" => "/srv/salt/key/minion.pub"
+      # }
+    end
+  end
 
-    salt.vm.provision :salt do |s|
-      s.install_type = "daily"
-      s.minion_config = "salt/masterless-minion"
-      s.run_highstate = true
+  config.vm.define "salt" do |minion|
+    minion.vm.synced_folder "salt/", "/srv/salt/"
+
+    minion.vm.provision "shell", inline: "echo 'minion' | sudo tee /"
+    minion.vm.provision :salt do |salt|
+      salt.install_type = "daily"
+      salt.minion_config = "salt/minion"
+      salt.run_highstate = true
+      salt.minion_key = "salt/key/minion.pem"
+      salt.grain_config = "salt/minion_grains"
     end
   end
 

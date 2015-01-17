@@ -13,7 +13,7 @@
 
 # Set the location of the salt master server. If the master server cannot be
 # resolved, then the minion will fail to start.
-master: localhost
+#master: salt
 
 # If multiple masters are specified in the 'master' setting, the default behavior
 # is to always try to connect to them in the order they are listed. If random_master is
@@ -257,6 +257,12 @@ master: localhost
 # minion event bus. The value is expressed in bytes.
 #max_event_size: 1048576
 
+# To detect failed master(s) and fire events on connect/disconnect, set
+# master_alive_interval to the number of seconds to poll the masters for
+# connection events.
+#
+#master_alive_interval: 30
+
 # The minion can include configuration from other files. To enable this,
 # pass a list of paths to this option. The paths can be either relative or
 # absolute; if relative, they are considered to be relative to the directory
@@ -284,7 +290,7 @@ master: localhost
 # of third party modules. Modules for returners and minions can be loaded.
 # Specify a list of extra directories to search for minion modules and
 # returners. These paths must be fully qualified!
-module_dirs: [/srv/salt/_modules]
+#module_dirs: []
 #returner_dirs: []
 #states_dirs: []
 #render_dirs: []
@@ -360,6 +366,14 @@ failhard: True
 # Top file to execute if startup_states is 'top':
 #top_file: ''
 
+# Automatically aggregate all states that have support for mod_aggregate by
+# setting to True. Or pass a list of state module names to automatically
+# aggregate just those types.
+#
+# state_aggregate:
+#   - pkg
+#
+#state_aggregate: False
 
 #####     File Directory Settings    #####
 ##########################################
@@ -371,7 +385,7 @@ failhard: True
 # Set the file client. The client defaults to looking on the master server for
 # files, but can be directed to look at the local file directory setting
 # defined below by setting it to local.
-file_client: local
+#file_client: remote
 
 # The file directory works on environments passed to the minion, each environment
 # can have multiple root directories, the subdirectories in the multiple file
@@ -388,14 +402,9 @@ file_client: local
 #     - /srv/salt/prod/services
 #     - /srv/salt/prod/states
 #
-file_roots:
-  base:
-    - /srv/salt/production/states
-    - /srv/salt/formula/logstash-formula
-  development:
-    - /srv/salt/development/states
-    - /srv/salt/production/states
-    - /srv/salt/formula/logstash-formula
+#file_roots:
+#  base:
+#    - /srv/salt
 
 # By default, the Salt fileserver recurses fully into all defined environments
 # to attempt to find files. To limit this behavior so that the fileserver only
@@ -416,12 +425,9 @@ file_roots:
 # The Salt pillar is searched for locally if file_client is set to local. If
 # this is the case, and pillar data is defined, then the pillar_roots need to
 # also be configured on the minion:
-pillar_roots:
-  base:
-    - /srv/salt/production/pillar
-  development:
-    - /srv/salt/development/pillar
-    - /srv/salt/production/pillar
+#pillar_roots:
+#  base:
+#    - /srv/pillar
 
 
 ######        Security settings       #####
@@ -453,6 +459,10 @@ pillar_roots:
 # successful states is returned. Useful when even the terse output of these
 # states is cluttering the logs. Set it to True to ignore them.
 #state_output_diff: False
+
+# The state_output_profile setting changes whether profile information
+# will be shown for each state run.
+#state_output_profile: True
 
 # Fingerprint of the master public key to double verify the master is valid,
 # the master fingerprint can be found by running "salt-key -F master" on the
@@ -488,6 +498,7 @@ pillar_roots:
 
 # The level of messages to send to the log file.
 # One of 'garbage', 'trace', 'debug', info', 'warning', 'error', 'critical'.
+# If using 'log_granular_levels' this must be set to the highest desired level.
 # Default: 'warning'
 #log_level_logfile:
 
@@ -498,6 +509,9 @@ pillar_roots:
 
 # The format of the console logging messages. Allowed formatting options can
 # be seen here: http://docs.python.org/library/logging.html#logrecord-attributes
+#
+# Console log colors are specified by these special log formatters:
+# %(colorlevel), %(colorname), %(colorprocess), %(colormsg).
 #log_fmt_console: '[%(levelname)-8s] %(message)s'
 #log_fmt_logfile: '%(asctime)s,%(msecs)03.0f [%(name)-17s][%(levelname)-8s] %(message)s'
 
@@ -505,7 +519,7 @@ pillar_roots:
 # example sets the main salt library at the 'warning' level, but sets
 # 'salt.modules' to log at the 'debug' level:
 #   log_granular_levels:
-#     'salt': 'warning',
+#     'salt': 'warning'
 #     'salt.modules': 'debug'
 #
 #log_granular_levels: {}
@@ -577,3 +591,9 @@ pillar_roots:
 ############################################
 # Location of the repository cache file on the master:
 #win_repo_cachefile: 'salt://win/repo/winrepo.p'
+
+
+######      Returner  settings        ######
+############################################
+# Which returner(s) will be used for minion's result:
+#return: mysql
