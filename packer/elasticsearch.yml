@@ -1,0 +1,47 @@
+---
+# ElasticSearch
+variables:
+  aws_access_key: '{{env `AWS_ACCESS_KEY_ID`}}'
+  aws_secret_key: '{{env `AWS_SECRET_ACCESS_KEY`}}'
+  aws_source_ami:
+  aws_region: us-east-1
+  aws_instance_type: m3.medium
+  aws_ami_virtualization: hvm
+  aws_uuid:
+builders:
+- type: amazon-ebs
+  access_key: '{{user `aws_access_key`}}'
+  secret_key: '{{user `aws_secret_key`}}'
+  region: '{{user `aws_region`}}'
+  source_ami: '{{user `aws_source_ami`}}'
+  instance_type: '{{user `aws_instance_type`}}'
+  ssh_username: ubuntu
+  ssh_timeout: 5m
+  ami_virtualization_type: '{{user `aws_ami_virtualization`}}'
+  ami_description: ElasticSearch AMI
+  ami_name: 'ops.elasticsearch-ami-{{timestamp}}'
+  ami_block_device_mappings:
+  - device_name: /dev/sda1
+    volume_type: gp2
+    delete_on_termination: true
+  launch_block_device_mappings:
+  - device_name: /dev/sda1
+    volume_type: gp2
+    delete_on_termination: true
+  run_tags:
+    Name: ops.elasticsearch-ami
+    env: ops
+    stackdriver_monitor: false
+  tags:
+    Name: ops.elasticsearch-ami
+    env: ops
+    BuildUuid: '{{user `aws_uuid`}}'
+  # TODO Docker
+provisioners:
+  - type: ansible-local
+    playbook_file: ../ansible/playbook.yml
+    inventory_file: ../ansible/inventories/production
+    playbook_dir: ../ansible
+    extra_arguments:
+    - '--limit packer-elasticsearch'
+  # TODO Add serverspec

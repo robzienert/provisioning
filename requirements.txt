@@ -1,2 +1,5 @@
+PyYAML==3.11
+boto==2.35.1
+requests==2.5.1
 troposphere==0.7.1
 wsgiref==0.1.2

@@ -1,9 +1,13 @@
-; Probably will just use a script to auto-generate the inventory from EC2 tags
-
 [elasticsearch]
+packer-elasticsearch ansible_connection=local
 
 [logstash]
+packer-logstash ansible_connection=local
 
 [kibana]
+kibana-logstash ansible_connection=local
 
 [production:children]
+elasticsearch
+logstash
+kibana

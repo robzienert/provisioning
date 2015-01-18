@@ -30,8 +30,8 @@ def template():
     provisioner = t.add_parameter(Parameter(
         'Provisioner',
         Type='String',
-        Description='Must be one of "salt" or "ansible", defaults to "salt"',
-        Default='salt'
+        Description='Must be one of "salt" or "ansible", defaults to "ansible"',
+        Default='ansible'
     ))
 
     es_ami = t.add_parameter(Parameter(
