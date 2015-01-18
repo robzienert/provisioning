@@ -31,3 +31,8 @@
 
 - name: add groovy to vim scripts file
   copy: copy src=vim-scripts-groovy.vim dest=/home/ubuntu/.vim/scripts.vim
+
+# Used for ansible-pull in CFN.
+- name: install ansible
+  apt: name=ansible state=latest
+

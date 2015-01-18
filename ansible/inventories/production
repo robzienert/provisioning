@@ -5,7 +5,7 @@ packer-elasticsearch ansible_connection=local
 packer-logstash ansible_connection=local
 
 [kibana]
-kibana-logstash ansible_connection=local
+packer-kibana ansible_connection=local
 
 [production:children]
 elasticsearch

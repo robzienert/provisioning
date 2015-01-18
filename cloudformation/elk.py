@@ -3,6 +3,24 @@ import troposphere.ec2 as ec2
 import troposphere.autoscaling as autoscaling
 import troposphere.elasticloadbalancing as elb
 
+
+def user_data(resource_name, commands):
+    data = [
+        '#!/bin/bash -x\n',
+        'exec >>(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1\n',
+        'echo "127.0.0.1 $HOSTNAME | tee -a /etc/hosts\n',
+        'function error_exit {\n',
+        '  /usr/local/bin/cfn-signal -e 1 --stack ', Ref('AWS::StackName'), ' -r {}\n'.format(resource_name),
+        '  exit 1\n',
+        '}\n'
+    ]
+    data.extend(commands)
+    data.extend([
+        '/usr/local/bin/cfn-signal -e $? --stack ', Ref('AWS::StackName'), ' -r {}\n'.format(resource_name)
+    ])
+    return Base64(Join('', data))
+
+
 def template():
     t = Template()
     t.add_version()
@@ -239,13 +257,16 @@ def template():
                 VirtualName='ephemeral0'
             )
         ],
-        UserData=Base64(Join('', [
+        UserData=user_data('LogstashAsg', [
             If(
                 'UseSalt',
                 '',
-                ''
+                Join('', [
+                    'ansible-pull --purge -C master -d /opt/provisioning -U git://github.com/robzienert/provisioning',
+                    '    -i /opt/provisioning/ansible/inventories/', Ref(env_name), '\n'
+                ])
             )
-        ]))
+        ])
     ))
 
     t.add_resource(autoscaling.AutoScalingGroup(
@@ -269,13 +290,16 @@ def template():
         ImageId=Ref(ls_ami),
         SecurityGroups=[Ref(ls_server_sg)],
         InstanceType='c3.large',
-        UserData=Base64(Join('', [
+        UserData=user_data('LogstashAsg', [
             If(
                 'UseSalt',
                 '',
-                ''
+                Join('', [
+                    'ansible-pull --purge -C master -d /opt/provisioning -U git://github.com/robzienert/provisioning',
+                    '    -i /opt/provisioning/ansible/inventories/', Ref(env_name), '\n'
+                ])
             )
-        ]))
+        ])
     ))
 
     t.add_resource(autoscaling.AutoScalingGroup(
@@ -299,13 +323,16 @@ def template():
         KeyName=Ref(key_name),
         SubnetId=Select(0, Ref(private_subnets)),
         SecurityGroups=Ref(kibana_ami),
-        UserData=Base64(Join('', [
+        UserData=user_data('KibanaInstance', [
             If(
                 'UseSalt',
                 '',
-                ''
+                Join('', [
+                    'ansible-pull --purge -C master -d /opt/provisioning -U git://github.com/robzienert/provisioning',
+                    '    -i /opt/provisioning/ansible/inventories/', Ref(env_name), '\n'
+                ])
             )
-        ])),
+        ]),
         Tags=Tags(
             Name=Join('.', [Ref(env_name), 'kibana']),
             env='ops'
