@@ -51,5 +51,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       a.verbose = "v"
       a.limit = "vagrant"
     end
+
+    # ansible.vm.provision :serverspec do |spec|
+    #   spec.pattern = 'tests/*_spec.rb'
+    # end
   end
 end

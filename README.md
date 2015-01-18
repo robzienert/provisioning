@@ -5,7 +5,3 @@ and Vagrant. Maybe Docker.
 
 If run, this will provision an ELK (ElasticSearch, Logstash, Kibana)
 stack that by default integrates with Logstash's syslog.
-
-# ServerSpec
-
-* TODO: https://github.com/jvoorhis/vagrant-serverspec
