@@ -1,0 +1,7 @@
+---
+# The 'all' group_var should be considered production; as everything else overrides from these values.
+kibana_port: 8080
+elasticsearch_version: 1.4.2
+elasticsearch_service_startonboot: yes
+#logstash_config_inputs: |
+#  file { path => [ "/var/log/syslog" ], type => "syslog" }

@@ -1,0 +1,25 @@
+---
+- hosts: all
+  sudo: True
+  pre_tasks:
+    - name: update apt cache
+      apt: update_cache=yes
+
+  roles:
+  - robzienert.common
+  - robzienert.cfn-bootstrap
+
+- hosts: elasticsearch
+  sudo: True
+  roles:
+  - gpstathis.elasticsearch
+
+- hosts: logstash
+  sudo: True
+  roles:
+  - Stouts.logstash
+
+- hosts: kibana
+  sudo: True
+  roles:
+  - azavea.kibana

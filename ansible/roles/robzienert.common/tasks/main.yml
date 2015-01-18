@@ -1,0 +1,33 @@
+---
+- name: ensure base packages are at latest version
+  apt: name={{ item }} state=latest
+  with_items:
+  - ntp
+  - unzip
+  - python-pip
+  - python-setuptools
+  - htop
+  - sysstat
+  - dstat
+  - git
+  - bash
+  notify:
+  - restart ntp
+
+- name: install awscli and boto
+  pip: name={{ item }} state=latest
+  with_items:
+  - awscli
+  - boto
+
+- name: create vim syntax directory
+  file: path=/home/ubuntu/.vim/syntax state=directory owner=ubuntu group=ubuntu
+
+- name: copy groovy syntax vim highlighting file
+  copy: src=vim-syntax-groovy.vim dest=/home/ubuntu/.vim/syntax/vim-syntax-groovy.vim
+
+- name: add groovy vim filetype
+  copy: src=vim-filetypes.vim dest=/home/ubuntu/.vim/filetype.vim
+
+- name: add groovy to vim scripts file
+  copy: copy src=vim-scripts-groovy.vim dest=/home/ubuntu/.vim/scripts.vim

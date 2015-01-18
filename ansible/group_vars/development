@@ -1,0 +1,18 @@
+---
+kibana_elasticsearch: "http://192.168.111.222:9200"
+
+elasticsearch_version: 1.4.2
+elasticsearch_heap_size: 1g
+elasticsearch_max_open_fileS: 65535
+elasticsearch_timezone: UTC
+elasticsearch_node_max_local_storage_nodes: 1
+elasticsearch_memory_bootstrap_dynamic: "true"
+elasticsearch_install_java: "true"
+elasticsearch_plugins:
+- { name: 'facet-script', url: 'http://dl.bintray.com/content/imotov/elasticsearch-plugins/elasticsearch-facet-script-1.1.2.zip' }
+elasticsearch_thread_pools:
+- "threadpool.bulk.type: fixed"
+- "threadpool.bulk.size: 50"
+- "threadpool.bulk.queue_size: 1000"
+
+install_cfn_bootstrap: false

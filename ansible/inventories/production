@@ -1,0 +1,9 @@
+; Probably will just use a script to auto-generate the inventory from EC2 tags
+
+[elasticsearch]
+
+[logstash]
+
+[kibana]
+
+[production:children]

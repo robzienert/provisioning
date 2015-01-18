@@ -28,7 +28,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "salt" do |minion|
     minion.vm.synced_folder "salt/", "/srv/salt/"
 
-    minion.vm.provision "shell", inline: "echo 'minion' | sudo tee /"
     minion.vm.provision :salt do |salt|
       salt.install_type = "daily"
       salt.minion_config = "salt/minion"
@@ -38,7 +37,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  # config.vm.define "ansible" do |ansible|
-  #
-  # end
+  config.vm.define "ansible" do |ansible|
+    ansible.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+
+    ansible.vm.hostname = "vagrant"
+    ansible.vm.network :private_network, ip: "192.168.111.222"
+    ansible.vm.provision :ansible do |a|
+      a.playbook = "ansible/playbook.yml"
+      a.inventory_path = "ansible/inventories/development"
+      a.verbose = "v"
+      a.limit = "vagrant"
+    end
+  end
 end

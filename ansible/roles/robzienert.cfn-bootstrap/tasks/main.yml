@@ -1,0 +1,25 @@
+---
+- name: download AWS CFN bootstrap
+  get_url:
+    dest: /tmp
+    url: https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+  when: install_cfn_bootstrap
+
+- name: unarchive AWS CFN bootstrap
+  unarchive:
+    copy: no
+    dest: /tmp
+    src: /tmp/aws-cfn-bootstrap-latest.tar.gz
+  when: install_cfn_bootstrap
+
+- name: determine AWS CFN version
+  shell: ls -d */ | grep aws-cfn-bootstrap
+  args:
+    chdir: /tmp
+  register: cfn_bootstrap_directory
+  when: install_cfn_bootstrap
+
+- name: install AWS CFN bootstrap
+  easy_install:
+    name: "/tmp/{{ cfn_bootstrap_directory.stdout }}"
+  when: install_cfn_bootstrap
